@@ -12,7 +12,7 @@ main = blankCanvas 3000 $ \ context -> do
 
 loop :: DeviceContext -> Time -> IO ()
 loop context n = do
-        let x = mkActive 0 1 (rotateSquare context)
+        let x = mkActive 0 1 (opaqueText context)
         loopWorker x n
 
 
@@ -21,9 +21,8 @@ loopWorker x n = do runActive x n
                     threadDelay (75 * 1000)	
                     loopWorker x $ mod' (n + 0.01) 2
 
-rotateSquare :: DeviceContext -> Time -> IO ()
-rotateSquare context n =
-          send context $ do
+opaqueText :: DeviceContext -> Time -> IO ()
+opaqueText context n = send context $ do
             let (w,h) = (width context, height context)
             clearRect (0,0,w,h)
             let n' = if n <= 1 then n else 2 - n  -- Logic for fade in and fade out

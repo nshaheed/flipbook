@@ -12,7 +12,9 @@ main = blankCanvas 3000 $ \ context -> do
 
 loop :: DeviceContext -> Time -> IO ()
 loop context n = do
-        let x = movie [(mkActive 0 1 (opaqueText context)), (mkActive 0 1 (rotateSquare context))]
+        let a1 = mkActive 0 1 (opaqueText context)
+        let a2 = mkActive 0 1 (rotateSquare context)
+        let x = movie [a2,a1]
         loopWorker x n
 
 
@@ -25,7 +27,7 @@ opaqueText :: DeviceContext -> Time -> IO ()
 opaqueText context n = send context $ do
             let (w,h) = (width context, height context)
             clearRect (0,0,w,h)
-            let n' = if n <= 1 then n else 2 - n  -- Logic for fade in and fade out
+            let n' = if n <= 0.5 then n else 1 - n  -- Logic for fade in and fade out
             globalAlpha $ fromTime n'
             font "40pt Calibri"
             fillText("Opacity",50,50)

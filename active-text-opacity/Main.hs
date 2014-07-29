@@ -12,7 +12,7 @@ main = blankCanvas 3000 $ \ context -> do
 
 loop :: DeviceContext -> Time -> IO ()
 loop context n = do
-        let x = mkActive 0 1 (opaqueText context)
+        let x = stretch 2 $ mkActive 0 1 (opaqueText context)
         loopWorker x n
 
 

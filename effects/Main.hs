@@ -17,21 +17,21 @@ loop :: DeviceContext -> Duration -> IO ()
 loop context d = do
           let x = fadein context d $ drawText context
           let y = fadeout context d $ drawText context
-          let z = movie [x]
+          let z = movie [y]
           loopWorker y 0
 
 loopWorker :: Active (IO ()) -> Time -> IO ()
 loopWorker x n = do runActive x n
                     threadDelay (75 * 1000)
                     print $ fromTime n
-                    loopWorker x 0.51--(n + 0.01) -- $ mod' (n + 0.01) 2
+                    loopWorker x (n + 0.01) -- $ mod' (n + 0.01) 2
 
                                                       
 fadein, fadeout :: DeviceContext -> Duration -> Canvas () -> Active (IO ())
-fadein context d c = stretchTo d $ mkActive 0 1 $ \t' -> send context $ do save()
-                                                                           globalAlpha(fromTime t')
-                                                                           c
-                                                                           restore()
+fadein context d c = clamp $ stretchTo d $ mkActive 0 1 $ \t' -> send context $ do save()
+                                                                                   globalAlpha(fromTime t')
+                                                                                   c
+                                                                                   restore()
 fadeout context d c = backwards $ fadein context d c
 
 

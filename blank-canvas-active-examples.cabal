@@ -18,4 +18,4 @@ cabal-version:       >=1.8
 executable blank-canvas-active-examples
   -- main-is:             
   -- other-modules:       
-  build-depends:       base ==4.6.*, active ==0.1.*, blank-canvas ==0.4.*, semigroups ==0.15.*, text ==1.1.*, mtl ==2.1.*
+  build-depends:       base, active, blank-canvas >=0.4, semigroups , text, mtl

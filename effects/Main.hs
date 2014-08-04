@@ -21,7 +21,7 @@ loop context d = do
           let a = clrScreen context
           let x0 = drawText context "40pt Calibri" "Text" (50,50)
               x1 = fadein context d x0
-              x2 = doNothing d
+              x2 = waitAni x1 d
               x3 = translateAni context d (0,0) (0,400) x0
               x  = movie [x1,x2,x3]
           let y = fadein context d $ drawText context "40pt Calibri" "Text" (100,100)
@@ -88,3 +88,7 @@ drawText context style text (x,y)= do font style
 
 doNothing :: Duration -> Active (IO())
 doNothing d = stretchTo d $ mkActive 0 1 $ \t -> do return ()
+
+-- Maintain end of given active value for given duration
+waitAni :: Active (IO()) -> Duration -> Active (IO())
+waitAni a d = stretchTo d $ mkActive 0 1 $ \t -> activeEnd a

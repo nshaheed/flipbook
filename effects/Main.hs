@@ -1,12 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Control.Concurrent
 import Data.Active
 import Data.Fixed
 import Data.Functor ((<$>))
 import Data.Semigroup
+import qualified Data.Text as Text
 import Graphics.Blank
-import Control.Concurrent
 
 -- import Control.Monad.IO.Class
 import Control.Monad.Trans
@@ -18,11 +19,12 @@ main = blankCanvas 3000 $ \ context -> do
 loop :: DeviceContext -> Duration -> IO ()
 loop context d = do
           let a = clrScreen context
-          let x1 = fadein context d $ drawText context
-              x2 = translateAni context d (50,50) (400,40) $ drawText context
+          let x0 = drawText context "40pt Calibri" "Text" (50,50)
+              x1 = fadein context d x0
+              x2 = translateAni context d (0,0) (0,400) x0
               x  = movie [x1,x2]
-          let y = fadein context d $ drawText' context
-          let x' = translateAni context d (50,50) (300,300) $ drawText context
+          let y = fadein context d $ drawText context "40pt Calibri" "Text" (100,100)
+          let x' = translateAni context d (50,50) (300,300) x0
           let z = [a,x,x']
           -- send context $ drawText context
           -- send context $ drawText' context
@@ -78,9 +80,9 @@ runAll' (x,y) t = do runActive x t
 clrScreen :: DeviceContext -> Active (IO ())
 clrScreen context = mkActive 0 1 $ \t -> send context $ do clearRect (0,0, width context, height context)
 
--- drawText :: DeviceContext -> String -> String -> (Float,Float) -> Canvas ()
--- drawText context style text (x,y)= do font sytle
---                                       fillText(,50,50)
+drawText :: DeviceContext -> Text.Text -> Text.Text -> (Float,Float) -> Canvas ()
+drawText context style text (x,y)= do font style
+                                      fillText(text,50,50)
 
 drawText' context = do font "40pt Calibri"
                        fillText("Opacity",100,100)                      

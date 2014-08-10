@@ -3,11 +3,13 @@ module Effects
        (fadein,
         fadeout,
         translateAni,
+        translateAniTxt,
         runAll,
         clrScreen,
         drawText,
         doNothing,
-        waitAni) where
+        waitAni,
+        waitAniCanv) where
 
 
 import Control.Concurrent
@@ -63,14 +65,27 @@ fadeout context d c = backwards $ fadein context d c
 --Animated Translate                          Start             End
 translateAni :: DeviceContext -> Duration -> (Float, Float) -> (Float, Float) -> Canvas () -> Active (IO ())
 translateAni context d (x1,y1) (x2,y2) c = clamp $ stretchTo d $
-                                           mkActive 0 1 $ \t -> send context $ do save()
-                                                                                  let (dx,dy) = (x2 - x1, y2 - y1)
-                                                                                      t'      = fromTime t
-                                                                                  translate (t' * dx + x1, t' * dy + y1)
-                                                                                  c
-                                                                                  restore()
+                                           mkActive 0 1 $ \t -> send context $ translateAniCanv (x1,y1) (x2,y2) t c
 
+translateAniTxt :: DeviceContext -> Duration -> (Float, Float) -> Text.Text -> Text.Text -> Text.Text -> Text.Text -> Active(IO ())
+translateAniTxt context d (x,y) txt disp style init = clamp $ stretchTo d $
+                                                      mkActive 0 1 $ \t -> send context $ do save()
+                                                                                             font style
+                                                                                             TextMetrics init' <- measureText init
+                                                                                             TextMetrics disp' <- measureText disp
+                                                                                             let txt' = drawText context style txt (0,0)
+                                                                                             translateAniCanv (x+init',y) (x+init'+disp',y) t txt'
+                                                                                             restore()
+-- The Canvas backend of any translateAni functions
+translateAniCanv :: (Float, Float) -> (Float, Float) -> Time -> Canvas () -> Canvas ()
+translateAniCanv (x1,y1) (x2,y2) t c = do save()
+                                          let (dx,dy) = (x2 - x1, y2 - y1)
+                                              t'      = fromTime t
+                                          translate (t' * dx + x1, t' * dy + y1)
+                                          c
+                                          restore()
 
+                                        
 runAll :: Monad m => [Active (m ())] -> Time -> m ()
 runAll xs t = mapM_ (flip runActive t) xs
 
@@ -83,7 +98,7 @@ clrScreen context = pure $ send context $ do clearRect (0,0, width context, heig
 
 drawText :: DeviceContext -> Text.Text -> Text.Text -> (Float,Float) -> Canvas ()
 drawText context style text (x,y)= do font style
-                                      fillText(text,50,50)
+                                      fillText(text,x,y)
 
 doNothing :: Duration -> Active (IO())
 doNothing d = stretchTo d $ mkActive 0 1 $ \t -> do return ()
@@ -91,3 +106,6 @@ doNothing d = stretchTo d $ mkActive 0 1 $ \t -> do return ()
 -- Maintain end of given active value for given duration
 waitAni :: Active (IO()) -> Duration -> Active (IO())
 waitAni a d = stretchTo d $ mkActive 0 1 $ \t -> activeEnd a
+
+waitAniCanv :: DeviceContext -> Duration -> Canvas () -> Active(IO())
+waitAniCanv context d c = stretchTo d $ mkActive 0 1 $ \t -> send context $ do c

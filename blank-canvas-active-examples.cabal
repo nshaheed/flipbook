@@ -3,7 +3,7 @@
 
 name:                blank-canvas-active-examples
 version:             0.1.0.0
-synopsis:            Using active for animation in blank-canvas
+synopsis:            Animation using blank canvas and active
 -- description:         
 homepage:            https://github.com/nshaheed/blank-canvas-active-examples
 license:             BSD3
@@ -15,7 +15,22 @@ category:            Graphics
 build-type:          Simple
 cabal-version:       >=1.8
 
-executable blank-canvas-active-examples
-  -- main-is:             
-  -- other-modules:       
-  build-depends:       base, active, blank-canvas >=0.4, semigroups , text, mtl
+library 
+  build-depends:       base >=4.6,
+                       active >=0.1, 
+                       blank-canvas >=0.4, 
+                       containers >=0.5, 
+                       text >=1.1, 
+                       mtl >=2.1
+  hs-source-dirs:      Effects
+  Exposed-modules:     Effects
+  extensions:          OverloadedStrings
+  default-language:    Haskell2010
+
+executable active-text-opacity
+  main-is:             Main.hs
+  build-depends:       base >=4.6,
+                       blank-canvas >=0.4,
+                       active >=0.1 
+  hs-source-dirs:      active-text-opacity
+  ghc-options:         -threaded

@@ -43,7 +43,7 @@ loop context d = do
                      -- xf = match fName $ separate f' fName
                      -- x5 = waitAniCanv context d $ drawNonFunc xf (50,150) 
 
-                     x = movie [x1,x2,x3,x4,x5]
+                     x = movie [x1,x2,x3,x4]
                  let y0 = combineDraw in' f' (50,100)
                      y1 = fadein context d y0
                      y2 = waitAni y1 (d/5)

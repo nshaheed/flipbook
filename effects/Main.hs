@@ -40,24 +40,32 @@ loop context d = do
                      x4 = waitAniCanv context d $ combineDraw arg xt (50,50)
                      x' = atTime (toTime . fromDuration $ d) $ waitAniCanv context (d + d') $ combineDraw arg "" (50,50)
                      x''= movie [doNothing d, x', doNothing d]
-                     -- xf = match fName $ separate f' fName
+
                      -- x5 = waitAniCanv context d $ drawNonFunc xf (50,150) 
 
                      x = movie [x1,x2,x3,x4]
                  let y0 = combineDraw in' f' (50,100)
                      y1 = fadein context d y0
-                     y2 = waitAni y1 (d/5)
-                     
-                     y = movie [y1,y2]
+                     y2 = waitAni y1 (2*d')
+                     yf = match fName $ separate (Text.concat [in',f']) fName
+                     y3 = waitAniCanv context d (drawNonFunc yf (50,100))
+                     yf'= replaceOnce "" xt yf 
+                     (ys1,ys2,ys3) = fuse yf'
+                     yfinal = Text.concat [ys1,ys2,ys3]
+                     y  = movie [y1,y2,y3]
                  let z1 = doNothing (d + d')
                      z2 = parenFade context d' arg f (50,50)
+                     z3 = fadeout context d $ drawFunc yf (50,100)
                      
-                     z = movie [z1,z2]
+                     z = movie [z1,z2,z3]
                      
                  -- let y = fadein context d $ drawText context "40pt Courier" "Text" (100,100)
                  -- let x' = translateAni context d (50,50) (300,300) x0
                  let fullAni = [a,x,x'',y,z]
                  -- print . activeEra $ x
+                 print yf
+                 print yf'
+                 print yfinal
                  -- send context $ drawText context
                  -- send context $ drawText' context
                  loopWorker fullAni 0
@@ -135,10 +143,49 @@ drawFunc ((t,b):xs) (x,y) = do save()
                                TextMetrics t' <- measureText t
                                when b $ fillText(t,x,y)
                                restore()
-                               drawFunc xs (x+t',y)                                  
-                                  
-                                  
-                                 
+                               drawFunc xs (x+t',y)
+
+
+replaceOnce :: Text.Text -> Text.Text -> [(Text.Text,Bool)] -> [(Text.Text,Bool)]
+replaceOnce pre rep xs = (pre,False): replaceOnceWorker rep xs
+
+replaceOnceWorker :: Text.Text -> [(Text.Text,Bool)] -> [(Text.Text,Bool)]
+replaceOnceWorker _ []            = []
+replaceOnceWorker rep ((t,b):tbs)
+  | b         = [(rep,True),(Text.concat $ fst . unzip $ tbs, False)]
+  | otherwise = (t,False): replaceOnceWorker rep tbs
+
+fuse :: [(Text.Text,Bool)] -> (Text.Text,Text.Text,Text.Text)
+fuse xs = let a = stopTrue xs
+              b = findTrue xs
+              c = afterTrue xs False
+          in (a,b,c)
+
+findTrue :: [(Text.Text,Bool)] -> Text.Text
+findTrue [] = ""
+findTrue ((t,b):tbs) = if b then t else findTrue tbs
+
+stopTrue :: [(Text.Text,Bool)] -> Text.Text
+stopTrue []          = ""
+stopTrue ((t,b):tbs)
+  | b         = ""
+  | otherwise = Text.concat [t, stopTrue tbs]
+
+afterTrue :: [(Text.Text,Bool)] -> Bool -> Text.Text
+afterTrue [] _= ""
+afterTrue ((t,b):tbs) past
+  | past      = Text.concat [t, afterTrue tbs True]
+  | otherwise = if b then afterTrue tbs True
+                     else afterTrue tbs False
+                          
+-- canvSections :: Text.Text -> (Float,Float) -> [(Text.Text,Bool)] -> [(Canvas(),Bool)]
+-- canvSections style (x,y) ((t,b):tbs) = let canv = do save()
+--                                                      font style
+--                                                      TextMetrics t' <- measureText t
+--                                                      when b $ fillText(t,x + t',y)
+                                                    
+
+                                              
 
 -- translateAniText :: DeviceContext -> Duration -> 
 

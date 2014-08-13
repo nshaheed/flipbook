@@ -4,6 +4,7 @@ module Effects
         fadeout,
         translateAni,
         translateAniTxt,
+        translateAniCanv,
         runAll,
         clrScreen,
         drawText,

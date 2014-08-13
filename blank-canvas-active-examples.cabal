@@ -13,24 +13,35 @@ maintainer:          n704s313@ku.edu
 -- copyright:           
 category:            Graphics
 build-type:          Simple
-cabal-version:       >=1.8
+cabal-version:       >= 1.10
 
 library 
-  build-depends:       base >=4.6,
-                       active >=0.1, 
-                       blank-canvas >=0.4, 
-                       containers >=0.5, 
-                       text >=1.1, 
-                       mtl >=2.1
-  hs-source-dirs:      effects
-  Exposed-modules:     Effects
-  extensions:          OverloadedStrings
   default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
 
 executable active-text-opacity
   main-is:             Main.hs
-  build-depends:       base >=4.6,
-                       blank-canvas >=0.4,
-                       active >=0.1 
+  build-depends:       active
+                     , base         >= 4.6
+                     , blank-canvas >= 0.4
   hs-source-dirs:      active-text-opacity
-  ghc-options:         -threaded
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
+
+executable after-test
+  main-is:             Main.hs
+  build-depends:       active
+                     , base         >= 4.6
+                     , blank-canvas >= 0.4
+  hs-source-dirs:      after-test
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
+
+executable rotate-square-active
+  main-is:             Main.hs
+  build-depends:       active
+                     , base         >= 4.6
+                     , blank-canvas >= 0.4
+  hs-source-dirs:      rotate-square-active
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded

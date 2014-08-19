@@ -11,12 +11,6 @@ import qualified Data.Text as Text
 import Effects
 import Graphics.Blank
 
--- main :: IO ()
--- main = blankCanvas 3000 $ \ context -> do
---   send context $ do translate(50,50)
---                     (x,y) <- combineDraw "fesfes" "fesfs"
---                     restore()
-
 main :: IO ()
 main = blankCanvas 3000 $ \ context -> do
        loop context (0.5 :: Duration)
@@ -61,7 +55,7 @@ loop context d = do
 
                      y5 = offsetTrans context d ys fName textStyle (50,100)
                      y6 = waitAni y5 d
-                     y7 = waitAniCanv context d $ drawText context textStyle yfinal (50,100)
+                     y7 = waitAniCanv context d $ drawText textStyle yfinal (50,100)
                      y  = movie [y1,y2,y3,y4,y5,y6,y7]
                  let z1 = doNothing d
                      z2 = doNothing d'
@@ -70,21 +64,76 @@ loop context d = do
                      
                      z = movie [z1,z2,z3,z4]
                      
-                 -- let y = fadein context d $ drawText context "40pt Courier" "Text" (100,100)
-                 -- let x' = translateAni context d (50,50) (300,300) x0
                  let fullAni = [a,x,x'',y,z]
                  -- let fullAni = [a,x,y]
-                 -- print . activeEra $ x
-                 -- print yf
-                 -- print yf'
-                 -- print yfinal
 
                  loopWorker fullAni 0
 
 loopWorker :: [Active (IO ())] -> Time -> IO ()                                                                                          
 loopWorker xs n = do runAll xs n                                                                                                         
-                     threadDelay (150 * 1000) --(75 * 1000)                                                                                                     -- print $ fromTime n   
-                     loopWorker xs (n + 0.01) -- $ mod' (n + 0.01) 2 
+                     threadDelay (150 * 1000) --(75 * 1000)                                                                                
+                     loopWorker xs (n + 0.01)
+
+
+
+setup :: DeviceContext -> Duration -> IO ()
+setup context d = do let a = clrScreen' context
+                     -- Functions to be displayed
+                     let fName = "f"--Text.pack "f"
+                         f     = Text.pack "\\x -> x + 2"
+                         arg   = Text.unwords ["let",fName,"=",""]
+                         in'   = "in "
+                         f'    = "f 3 + 2"
+                         d'    = d/6
+                     let x1'= combineDraw arg f (50,50)
+                         x1 = fadein' d x1'
+                         xt = Text.append (Text.append "(" f) ")"
+                         x2 = translateAniTxt' d' (50,50) f "(" textStyle arg
+                         x3 = waitAni' x2 d'
+                         x4'= offsetText arg xt textStyle (50,50) --drawText context textStyle xt (50,50)
+                         x4 = waitAniCanv' d x4'
+                         -- start here
+                         x5 = transText context d arg (50,50) in' (50,100) xt textStyle
+                         x6 = waitAni x5 d
+                         x7 = doNothing d
+                         x' = atTime (toTime . fromDuration $ d) $ waitAniCanv context (d + d') $ combineDraw arg "" (50,50)
+                         x''= movie [doNothing d, x']
+
+                         -- x5 = waitAniCanv context d $ drawNonFunc xf (50,150) 
+
+                         -- x = movie [x1,x2,x3,x4,x5,x6,x7]
+                     let y0 = combineDraw in' f' (50,100)
+                         y1 = fadein context d y0
+                         y2 = waitAni y1 d'
+                         y3 = y2
+                         yf = match fName $ separate (Text.concat [in',f']) fName
+                         y4 = waitAniCanv context d (drawNonFunc yf (50,100))
+      
+                         yf'= replaceOnce "" xt yf 
+                         ys@(ys1,ys2,ys3) = fuse yf'
+                         yfinal = Text.concat [ys1,ys2,ys3]
+
+                         y5 = offsetTrans context d ys fName textStyle (50,100)
+                         y6 = waitAni y5 d
+                         y7 = waitAniCanv context d $ drawText textStyle yfinal (50,100)
+                         y  = movie [y1,y2,y3,y4,y5,y6,y7]
+                     let z1 = doNothing d
+                         z2 = doNothing d'
+                         z3 = parenFade context d' arg f (50,50)
+                         z4 = fadeout context d $ drawFunc yf (50,100)
+                     
+                         z = movie [z1,z2,z3,z4]
+          
+                     -- let fullAni = [a,x,x'',y,z]
+                     -- let fullAni = [a,x,y]
+
+                     -- loop' fullAni 0 context
+                     send context $ do fillText("fjdsla",0,0)
+
+loop' :: [Active (Canvas ())] -> Time -> DeviceContext -> IO ()
+loop' xs n context = do send context $ runAll' xs n
+                        threadDelay (150 * 1000) --(75 * 1000)
+                        loop' xs (n + 0.01) context
 
 
 --splits the first Text argument into sections delineated by
@@ -129,8 +178,8 @@ parenFade context d t1 t2 (x,y) = fadein context d $ do save()
                                                         TextMetrics t1' <- measureText t1
                                                         TextMetrics t2' <- measureText t2
                                                         TextMetrics p'  <- measureText "("
-                                                        drawText context textStyle "(" (x+t1',y)
-                                                        drawText context textStyle ")" (x+t1'+p'+t2',y)
+                                                        drawText textStyle "(" (x+t1',y)
+                                                        drawText textStyle ")" (x+t1'+p'+t2',y)
                                                         restore()
 
 match :: Eq a => a -> [a] -> [(a,Bool)]
@@ -224,25 +273,4 @@ transText context d t1 (x1,y1) t2 (x2,y2) t0 style = clamp $ stretchTo d $ mkAct
                                                               translateAniCanv (x1',y1) (x2',y2) t $ fillText(t0,0,0)
                                                               restore()
 
-                                                           -- let c = save()
-                                                           --   font style
-                                                           --   TextMetrics t1' <- measureText t1
-                                                           --   TextMetrics t2' <- measureText t2
                                                              
--- canvSections :: Text.Text -> (Float,Float) -> [(Text.Text,Bool)] -> [(Canvas(),Bool)]
--- canvSections style (x,y) ((t,b):tbs) = let canv = do save()
---                                                      font style
---                                                      TextMetrics t' <- measureText t
---                                                      when b $ fillText(t,x + t',y)
-                                                    
-
-                                              
-
--- translateAniText :: DeviceContext -> Duration -> 
-
--- topFuncAni :: DeviceContext -> Duration -> Text.Text -> Text.Text -> (Float,Float) -> Canvas ()
--- topFuncAni context d arg f (x,y) = TextMetrics arg' <- measureText arg
---                                    TextMetrics par <- measureText "("
-
--- strip :: Canvas TextMetrics -> Float
--- strip (TextMetrics x) = x

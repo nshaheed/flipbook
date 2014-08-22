@@ -63,8 +63,8 @@ setup context d = do let a = clrScreen context
                      let fullAniRender = [x,x'',y,z]
                      let fullAni = [a,x,x'',y,z]
                          
-                     render fullAniRender context
-                     -- loop fullAni 0 context
+                     -- render fullAniRender context
+                     loop fullAni 0 context
                      -- send context $ do fillText("fjdsla",0,0)
                      
 
@@ -125,20 +125,15 @@ separate l s = let (x,y) = Text.breakOn s l
 --returns the width of the first string and the width of both
 --  strings combined.
 combineDraw :: Text.Text -> Text.Text -> (Float,Float) -> Canvas ()
-combineDraw a b (x,y) = do save()
-                           font textStyle
-                           TextMetrics wa <- measureText a
-                           TextMetrics wb <- measureText b
-                           translate(x,y)
-                           fillText(a,0,0)
-                           drawAfter (wa,0) b
-                           restore()
+combineDraw a b (x,y) = saveRestore $ do font textStyle
+                                         TextMetrics wa <- measureText a
+                                         TextMetrics wb <- measureText b
+                                         translate(x,y)
+                                         fillText(a,0,0)
+                                         fillText(b,wa,0)
 
 drawAfter :: (Float,Float) -> Text.Text -> Canvas ()
-drawAfter (x,y) t = do save()
-                       translate(x,y)
-                       fillText(t,0,0)
-                       restore()
+drawAfter (x,y) t = do fillText(t,x,y)
 
 textStyle :: Text.Text
 textStyle = "20pt Calibri"

@@ -15,6 +15,7 @@ extra-source-files:  README.md
 
 library
   exposed-modules:     Effects
+  other-modules:       Main
   build-depends:       active
                      , base         >= 4.3.1
                      , blank-canvas >= 0.4

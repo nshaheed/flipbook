@@ -9,9 +9,8 @@ import           Data.Maybe
 import qualified Data.Text as Text
 import           Data.Text (Text)
 
-import           Effects
-
 import           Graphics.Blank
+import           Graphics.Flipbook.Effects
 
 main :: IO ()
 main = blankCanvas 3000 $ flip setup 0.5

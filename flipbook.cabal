@@ -14,7 +14,7 @@ cabal-version:       >= 1.10
 extra-source-files:  README.md
 
 library
-  exposed-modules:     Effects
+  exposed-modules:     Graphics.Flipbook.Effects
   other-modules:       Main
   build-depends:       active
                      , base         >= 4.3.1

@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Effects (
+module Graphics.Flipbook.Effects (
       fadein
     , fadeout
     , translateAni
@@ -29,7 +29,6 @@ aniActive1 d a = stretchTo d . mkActive 0 1 $ a
 aniActive2 :: Duration -> (Time -> a) -> Active a
 aniActive2 d a = clamp . stretchTo d $ mkActive 0 1 a
 
--- :: Duraction -> a -> Active a
 fadein, fadeout :: Duration -> Canvas () -> Active (Canvas())
 fadein d c = aniActive2 d $ \t -> saveRestore $ do
     globalAlpha $ fromTime t
@@ -38,7 +37,6 @@ fadeout d c  = backwards $ fadein d c
 
 -- | Animated Translation
 translateAni :: Duration -> (Float, Float) -> (Float, Float) -> Canvas () -> Active (Canvas ())
--- translateAni d start' end' c = clamp $ stretchTo d $ mkActive 0 1 $ \t -> translateAniCanv start' end' t c
 translateAni d start' end' c = aniActive2 d $ \t -> translateAniCanv start' end' t c
 
 -- | Displaces a given text by the width of a given displacement text, requires the preceding text for width
@@ -49,13 +47,6 @@ translateAniTxt d (x,y) txt disp precede style = aniActive2 d $ \t -> saveRestor
     TextMetrics disp'    <- measureText disp
     let txt' = drawText style txt (0,0)
     translateAniCanv (x+precede', y) (x+precede'+disp', y) t txt'
--- translateAniTxt d (x,y) txt disp style initial = clamp $ stretchTo d $
---                                                  mkActive 0 1 $ \t -> saveRestore $ do font style
---                                                                                        TextMetrics initial' <- measureText initial
---                                                                                        TextMetrics disp' <- measureText disp
---                                                                                        let txt' = drawText style txt (0,0)
---                                                                                        translateAniCanv (x+initial',y) (x+initial'+disp',y) t txt'
-
 
 -- | The Canvas backend of any translateAni functions
 translateAniCanv :: (Float, Float) -> (Float, Float) -> Time -> Canvas () -> Canvas ()

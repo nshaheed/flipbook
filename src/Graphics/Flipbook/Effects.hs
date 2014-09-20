@@ -36,11 +36,11 @@ fadein d c = aniActive2 d $ \t -> saveRestore $ do
 fadeout d c  = backwards $ fadein d c
 
 -- | Animated Translation
-translateAni :: Duration -> (Float, Float) -> (Float, Float) -> Canvas () -> Active (Canvas ())
+translateAni :: Duration -> (Double, Double) -> (Double, Double) -> Canvas () -> Active (Canvas ())
 translateAni d start' end' c = aniActive2 d $ \t -> translateAniCanv start' end' t c
 
 -- | Displaces a given text by the width of a given displacement text, requires the preceding text for width
-translateAniTxt :: Duration -> (Float, Float) -> Text -> Text -> Text -> Text -> Active(Canvas ())
+translateAniTxt :: Duration -> (Double, Double) -> Text -> Text -> Text -> Text -> Active (Canvas ())
 translateAniTxt d (x,y) txt disp precede style = aniActive2 d $ \t -> saveRestore $ do
     font style
     TextMetrics precede' <- measureText precede
@@ -49,7 +49,7 @@ translateAniTxt d (x,y) txt disp precede style = aniActive2 d $ \t -> saveRestor
     translateAniCanv (x+precede', y) (x+precede'+disp', y) t txt'
 
 -- | The Canvas backend of any translateAni functions
-translateAniCanv :: (Float, Float) -> (Float, Float) -> Time -> Canvas () -> Canvas ()
+translateAniCanv :: (Double, Double) -> (Double, Double) -> Time -> Canvas () -> Canvas ()
 translateAniCanv (x1, y1) (x2, y2) t c = saveRestore $ do
     let (dx,dy) = (x2 - x1, y2 - y1)
         t'      = fromTime t
@@ -66,7 +66,7 @@ combine (x:xs) t = runActive x t >> combine xs t
 clrScreen :: DeviceContext -> Active (Canvas ())
 clrScreen context = pure $ clearRect (0, 0, width context, height context)
 
-drawText :: Text -> Text -> (Float, Float) -> Canvas ()
+drawText :: Text -> Text -> (Double, Double) -> Canvas ()
 drawText style text (x,y)= do
     font style
     fillText (text, x, y)

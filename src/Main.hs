@@ -131,7 +131,7 @@ separate l s = let (x,y) = Text.breakOn s l
 -- | Takes two Text strings and places y immediately after x.
 --   returns the width of the first string and the width of both
 --   strings combined.
-combineDraw :: Text -> Text -> (Float, Float) -> Canvas ()
+combineDraw :: Text -> Text -> (Double, Double) -> Canvas ()
 combineDraw a b (x,y) = saveRestore $ do
     font textStyle
     TextMetrics wa <- measureText a
@@ -140,13 +140,13 @@ combineDraw a b (x,y) = saveRestore $ do
     fillText (a, 0, 0)
     fillText (b, wa, 0)
 
-drawAfter :: (Float, Float) -> Text -> Canvas ()
+drawAfter :: (Double, Double) -> Text -> Canvas ()
 drawAfter (x, y) t = fillText (t, x, y)
 
 textStyle :: Text.Text
 textStyle = "20pt Calibri"
 
-parenFade :: Duration -> Text -> Text -> (Float, Float) -> Active (Canvas())
+parenFade :: Duration -> Text -> Text -> (Double, Double) -> Active (Canvas())
 parenFade d t1 t2 (x,y) = fadein d $ do
     save ()
     font textStyle
@@ -160,7 +160,7 @@ parenFade d t1 t2 (x,y) = fadein d $ do
 match :: Eq a => a -> [a] -> [(a,Bool)]
 match x ys = [(y, y == x) | y <- ys]
 
-drawNonFunc :: [(Text, Bool)] -> (Float, Float) -> Canvas ()
+drawNonFunc :: [(Text, Bool)] -> (Double, Double) -> Canvas ()
 drawNonFunc []          _      = return ()
 drawNonFunc ((t, b):xs) (x, y) = do
     save ()
@@ -170,7 +170,7 @@ drawNonFunc ((t, b):xs) (x, y) = do
     restore ()
     drawNonFunc xs (x+t', y)
 
-drawFunc :: [(Text, Bool)] -> (Float, Float) -> Canvas ()
+drawFunc :: [(Text, Bool)] -> (Double, Double) -> Canvas ()
 drawFunc []          _      = return ()
 drawFunc ((t, b):xs) (x, y) = do
     save ()
@@ -199,7 +199,7 @@ findTrue :: [(Text, Bool)] -> Text
 findTrue []           = ""
 findTrue ((t, b):tbs) = if b then t else findTrue tbs
 
-stopTrue :: [(Text.Text,Bool)] -> Text.Text
+stopTrue :: [(Text, Bool)] -> Text
 stopTrue []           = ""
 stopTrue ((t, b):tbs)
   | b         = ""
@@ -212,7 +212,7 @@ afterTrue ((t,b):tbs) past
   | otherwise = if b then afterTrue tbs True
                      else afterTrue tbs False
 
-offsetTrans :: Duration -> (Text, Text, Text) -> Text -> Text -> (Float, Float) -> Active (Canvas ())
+offsetTrans :: Duration -> (Text, Text, Text) -> Text -> Text -> (Double, Double) -> Active (Canvas ())
 offsetTrans d (t1,t2,t3) f style (x,y) =
   let c = do save ()
              font style
@@ -230,7 +230,7 @@ offsetTrans d (t1,t2,t3) f style (x,y) =
              translateAniCanv (x+t1'+f', y) (x+t1'+t2', y) t $ fillText (t3, 0, 0)
              restore()
                                                                     
-offsetText :: Text -> Text -> Text -> (Float, Float) -> Canvas ()
+offsetText :: Text -> Text -> Text -> (Double, Double) -> Canvas ()
 offsetText pre txt style (x, y) = do
     save ()
     font style
@@ -238,7 +238,7 @@ offsetText pre txt style (x, y) = do
     fillText (txt,x+pre', y)
     restore ()
 
-transText :: Duration -> Text -> (Float, Float) -> Text -> (Float, Float) -> Text -> Text -> Active (Canvas ())
+transText :: Duration -> Text -> (Double, Double) -> Text -> (Double, Double) -> Text -> Text -> Active (Canvas ())
 transText d t1 (x1, y1) t2 (x2, y2) t0 style = clamp . stretchTo d . mkActive 0 1 $ \t -> do
     save ()
     font style
